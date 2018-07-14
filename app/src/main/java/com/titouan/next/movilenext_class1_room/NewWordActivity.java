@@ -42,7 +42,11 @@ public class NewWordActivity extends AppCompatActivity {
             Intent intent = new Intent();
             intent.putExtra(EXTRA_WORD, mWord.getText().toString());
             setResult(RESULT_OK, intent);
+        } else {
+            setResult(RESULT_CANCELED);
         }
         finish();
     }
+
+
 }

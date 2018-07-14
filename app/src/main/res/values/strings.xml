@@ -3,4 +3,5 @@
     <string name="action_settings">Settings</string>
     <string name="your_word">Your word</string>
     <string name="save">Save</string>
+    <string name="warning_empty_word">You tried to save an empty word</string>
 </resources>

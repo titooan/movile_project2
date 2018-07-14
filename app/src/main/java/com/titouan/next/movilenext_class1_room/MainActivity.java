@@ -17,6 +17,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,21 +38,10 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ButterKnife.bind(this);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view ->
-                startActivityForResult(NewWordActivity.getStartIntent(this), NEW_WORD_REQUEST));
 
         mWordViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
 
         setupRecyclerView();
-
-//        mWordViewModel.insert("Plop");
-//
-//        LiveData<List<Word>> words = mWordViewModel.getWords();
-//
-//        for (Word word : words.getValue()) {
-//            Log.d("Word: ", word.getWord());
-//        }
     }
 
     private void setupRecyclerView() {
@@ -66,10 +56,17 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == NEW_WORD_REQUEST && resultCode == RESULT_OK) {
             String word = data.getStringExtra(EXTRA_WORD);
-            if(!TextUtils.isEmpty(word)) {
+            if (!TextUtils.isEmpty(word)) {
                 mWordViewModel.insert(word);
             }
+        } else if (requestCode == NEW_WORD_REQUEST) {
+            Snackbar.make(mRecyclerView, getString(R.string.warning_empty_word), Snackbar.LENGTH_SHORT).show();
         }
+    }
 
+
+    @OnClick(R.id.fab)
+    public void addNewWord() {
+        startActivityForResult(NewWordActivity.getStartIntent(this), NEW_WORD_REQUEST);
     }
 }
