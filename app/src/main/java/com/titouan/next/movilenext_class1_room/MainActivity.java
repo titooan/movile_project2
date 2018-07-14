@@ -1,52 +1,75 @@
 package com.titouan.next.movilenext_class1_room;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.TextUtils;
+
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int NEW_WORD_REQUEST = 1;
+    public static final String EXTRA_WORD = "extra_word";
+
+    @BindView(R.id.recyclerView)
+    protected RecyclerView mRecyclerView;
+
+    private WordsAdapter mAdapter;
+    private WordViewModel mWordViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        ButterKnife.bind(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view ->
+                startActivityForResult(NewWordActivity.getStartIntent(this), NEW_WORD_REQUEST));
+
+        mWordViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
+
+        setupRecyclerView();
+
+//        mWordViewModel.insert("Plop");
+//
+//        LiveData<List<Word>> words = mWordViewModel.getWords();
+//
+//        for (Word word : words.getValue()) {
+//            Log.d("Word: ", word.getWord());
+//        }
+    }
+
+    private void setupRecyclerView() {
+        mAdapter = new WordsAdapter();
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setAdapter(mAdapter);
+        mWordViewModel.getWords().observe(this, mAdapter::setWords);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        if (requestCode == NEW_WORD_REQUEST && resultCode == RESULT_OK) {
+            String word = data.getStringExtra(EXTRA_WORD);
+            if(!TextUtils.isEmpty(word)) {
+                mWordViewModel.insert(word);
             }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
         }
 
-        return super.onOptionsItemSelected(item);
     }
 }
